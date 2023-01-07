@@ -1,11 +1,13 @@
--- 2a
+-- Find the names of all employees who work for First Bank Corporation  
+
 SELECT employee_name
 FROM employees
 WHERE employee_name IN (SELECT employee_name
 FROM works
 WHERE company_name = 'First Bank Corporation');
 
--- 2b
+-- Find the names and cities of residence of all employees who work for First Bank Corporation
+
 SELECT employee_name, city
 FROM employees
 WHERE employee_name IN (
@@ -13,7 +15,9 @@ WHERE employee_name IN (
 	FROM works
 	WHERE company_name = 'First Bank Corporation');
  
--- 2c
+-- Find the names, street addresses, and cities of residence of all employees who work for
+-- First Bank Corporation and earn more than $10,000.
+
 SELECT employee_name, street, city
 FROM employees
 WHERE employee_name IN (
@@ -21,7 +25,9 @@ WHERE employee_name IN (
 	FROM works
 	WHERE company_name = 'First Bank Corporation' AND salary > 10000);
 
--- 2d
+-- Find all employees in the database who live in the same cities as the companies for
+-- which they work
+
 SELECT employee_name
 FROM employees
 WHERE EXISTS (
@@ -36,7 +42,8 @@ WHERE EXISTS (
             )
 );
 
--- 2e
+-- Find all employees in the database who live in the same cities and on the same streets
+-- as do their managers
 SELECT employee_name
 FROM employees e
 WHERE EXISTS (
@@ -52,7 +59,7 @@ WHERE EXISTS (
         )
 );
 
--- 2f
+-- Find all employees in the database who do not work for First Bank Corporation
 SELECT employee_name
 FROM employees
 WHERE employee_name NOT IN (
@@ -61,7 +68,9 @@ WHERE employee_name NOT IN (
     WHERE company_name  = 'First Bank Corporation'
 ); 
 
--- 2g
+-- Find all employees in the database who earn more than each employee of Small Bank
+-- Corporation
+
 SELECT employee_name
 FROM employees
 WHERE EXISTS (
@@ -74,7 +83,9 @@ WHERE EXISTS (
     )
 );
 
--- 2h
+-- Assume that the companies may be located in several cities. Find all companies located
+-- in every city in which Small Bank Corporation is located
+
 SELECT company_name
 FROM companies c
 WHERE c.company_name <> 'Small Bank Corporation'
@@ -90,7 +101,9 @@ AND EXISTS (
                 )
 );
 
--- 2i
+-- Find all employees who earn more than the average salary of all employees of their
+-- company
+
 SELECT salary, employee_name, company_name
 FROM works
 WHERE salary > (
@@ -98,20 +111,25 @@ WHERE salary > (
     FROM works w
     WHERE w.company_name = works.company_name);
 
--- 2j
+-- Find the company that has the most employees
+
 SELECT company_name, COUNT(*) as max_employee
 FROM works
 GROUP BY company_name
 ORDER BY max_employee DESC
 LIMIT 1;
 
--- 2k
+-- Find the company that has the smallest payroll
+
 SELECT MIN(salary) as min_salary, company_name
 FROM works
 GROUP BY company_name
+ORDER BY salary
 LIMIT 1;
 
--- 2l
+-- Find those companies whose employees earn a higher salary, on average, than the
+-- average salary at First Bank Corporation
+
 SELECT salary, employee_name
 FROM works
 WHERE salary > (
@@ -120,22 +138,24 @@ WHERE salary > (
     WHERE w2.company_name = 'First Bank Corporation'
     );
     
--- 3a
+-- Modify the database so that Jones now lives in Newtown
+
 UPDATE employees
 SET city = 'Newtown'
 WHERE employee_name LIKE('Jones%');
 
--- 3b
+-- Give all employees of First Bank Corporation a 10 percent raise
 UPDATE works
 SET salary = salary + (salary * 0.1) 
 WHERE company_name = 'First Bank Corporation';
 
--- 3c
+-- Give all managers of First Bank Corporation a 10 percent raise
 UPDATE works, manages
 SET salary = salary + (salary * 0.1)
 WHERE works.employee_name = manages.employee_name AND works.company_name = 'First Bank Corporation';
 
--- 3d
+-- Give all managers of First Bank Corporation a 10 percent raise
+-- unless the salary becomes greater than $100,000; in such cases, give only a 3 percent raise.
 UPDATE works, manages
 SET salary = 
     CASE 
@@ -145,7 +165,7 @@ SET salary =
 WHERE works.employee_name = manages.employee_name
 		AND works.company_name = 'First Bank Corporation';
         
--- 3e 
+-- Delete all tuples in the works relation for employees of Small Bank Corporation 
 DELETE employees, manages
 FROM works
 LEFT JOIN employees ON employees.employee_name = works.employee_name
